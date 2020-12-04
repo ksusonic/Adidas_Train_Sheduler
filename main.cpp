@@ -1,20 +1,35 @@
-#include <stdio.h>
+#include <iostream>
 #include "curl/curl.h"
-#pragma comment(lib,"curllib.lib")
+
+std::string curlBuffer;
+size_t curlWriteFunc(char *data, size_t size, size_t nmemb, std::string *buffer)
+{
+    size_t result = 0;
+
+    if (buffer != NULL)
+    {
+        buffer->append(data, size * nmemb);
+        result = size * nmemb;
+    }
+    return result;
+}
 
 int main()
 {
-    CURL *  curl_handle = curl_easy_init();
-    if(curl_handle)
+    std::string readBuffer;
+    CURL *curl; //объект типа CURL
+    curl = curl_easy_init(); //инициализация
+    if(curl) //проверка
     {
-        // задаем  url адрес
-        curl_easy_setopt(curl_handle, CURLOPT_URL, "https://www.cyberforum.ru");
-        // выполняем запрос
-        CURLcode res = curl_easy_perform(curl_handle);
-        // закрываем дескриптор curl
-        curl_easy_cleanup(curl_handle);
-    }
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &curlBuffer);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curlWriteFunc);
+        curl_easy_setopt(curl, CURLOPT_URL, "https://www.adidas.ru/adidasrunners/community/moscow");
 
-    getchar();
+        curl_easy_perform(curl);
+
+        std::cout << curlBuffer; // Просто выводим результат запроса.
+
+        curl_easy_cleanup(curl);
+    }
     return 0;
 }
