@@ -22,11 +22,8 @@ public:
     }
 
     static std::vector<int> GetMembersInfo(const std::string &json) {
-
         int nrAttendees = GetParameterFromJson(json, "nrAttendees");
         int maxAttendees = GetParameterFromJson(json, "maxAttendees");
-
-        std::cout << nrAttendees << ' ' << maxAttendees <<std::endl;
         return {nrAttendees, maxAttendees};
     }
 
