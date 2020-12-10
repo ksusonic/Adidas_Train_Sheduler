@@ -1,8 +1,6 @@
 #ifndef ADIDAS_USER_H
 #define ADIDAS_USER_H
-#include <iostream>
 #include <fstream>
-#include <ctime>
 #include "curl/curl.h"
 #include "parser.h"
 
@@ -31,8 +29,6 @@ private:
     CURLcode res;
 
     bool load_config();
-
-    time_t end_time = time(nullptr);
     std::string login, password, event_id;
 };
 

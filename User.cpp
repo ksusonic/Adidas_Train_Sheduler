@@ -90,15 +90,16 @@ bool User::Authenticate_user() {
     if (res == CURLE_OK) {
         access_token = Parser::Get_token_from_link(curlBuffer);
         if (access_token.empty()) {
-            std::cerr << "--Token not found--" << std::endl;
+            std::cerr << "--Token not found--\n" << std::endl;
             return false;
         }
-        std::cerr << "--Authentication is success--" << std::endl;
+        std::cerr << "--Authentication is success--\n" << std::endl;
         user_logged = true;
 //        std::cerr << "token: " + access_token << std::endl;
         return true;
     } else {
         std::cerr << "-!-Authentication is failed-!-\n" << std::endl;
+        std::cout << '\n';
         return false;
     }
 }
@@ -123,7 +124,7 @@ void User::perform_POST_Request(const std::string &link) {
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, body.c_str());
     res = curl_easy_perform(curl);
     if (res != CURLE_OK) {
-        std::cerr << "Error in POST";
+        std::cerr << "--Error in POST--";
     }
     std::cout << "\nResponse is: " << curlBuffer + '\n' << std::endl;
 }
@@ -135,7 +136,7 @@ bool User::Signup() {
     if (curlBuffer == R"({"data":""})") {
         std::cout << " ~ ~ ~ Successfully subscribed! ~ ~ ~\nHave a nice train!";
         exit(0);
-    } else if (curlBuffer == "{\"error\":{\"code\":\"error.http.bad_request\",\"message\":\"Maximum number of attendees is reached\"}}") {
+    } else if (curlBuffer == R"({"error":{"code":"error.http.bad_request","message":"Maximum number of attendees is reached"}})") {
         std::cout << "No free places :(" << std::endl;
         return false;
     }
