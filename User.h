@@ -9,26 +9,26 @@ class User {
 public:
     User();
 
-    CURL *curl{curl_easy_init()}; // CURL object
-    std::string curlBuffer;
+    CURL *curl{curl_easy_init()}; // CURL object automatically initialised
+    std::string curlBuffer{};       // buffer of Curl responses
 
-    static size_t curlWriteFunc(char *data, size_t size, size_t nmemb, std::string *buffer);
-    void setLink(const std::string &link) const;
-    void performCurl() const;
-    void setLoginPassword(std::string &&login, std::string &&password);
+    static size_t curlWriteFunc(char *data, size_t size, size_t nmemb, std::string *buffer); // function that writes to curlBuffer
+
+    bool Authenticate_user();
+    void perform_GET_Request(const std::string &link);
+    void perform_POST_Request(const std::string &link, std::string&& body = "");
 
     ~User();
 
 private:
     bool user_logged {false};
-    int load_congig();
+    bool load_config();
+    std::string access_token{};
 
-    char curlErrorBuffer[CURL_ERROR_SIZE];
+    CURLcode res;
+
     time_t end_time = time(nullptr);
-    std::string train_name;
     std::string login, password;
-    std::string notification_email;
 };
-
 
 #endif //ADIDAS_USER_H

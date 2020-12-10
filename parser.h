@@ -21,6 +21,22 @@ public:
         return "https://www.adidas.ru/adidasrunners/api/events/" + std::string(it_begin, it_end);
     }
 
+    static std::string Get_token_from_link(const std::string &link) {
+        /* input:
+         * JSON: {..., "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGc...", }
+         * output:
+         * eyJ0eXAiOiJKV1QiLCJhbGc...
+         */
+        std::string to_find = "accessToken";
+        auto it_begin = std::search(link.begin(), link.end(), to_find.begin(), to_find.end());
+        it_begin = std::find(it_begin, link.end(), '"');
+        ++it_begin;
+        it_begin = std::find(it_begin, link.end(), '"');
+        ++it_begin;
+        auto it_end = std::find(it_begin, link.end(), '"');
+        return std::string(it_begin, it_end);
+    }
+
     static std::vector<int> GetMembersInfo(const std::string &json) {
         int nrAttendees = GetParameterFromJson(json, "nrAttendees");
         int maxAttendees = GetParameterFromJson(json, "maxAttendees");
