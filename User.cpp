@@ -20,17 +20,11 @@ User::User() {
     curl_easy_setopt(curl, CURLOPT_DEFAULT_PROTOCOL, "https");
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
     if (!load_config()) {
-        int tries = 0;
-        while (login.empty() && tries < 3) {
+        while (login.empty() && password.empty()) {
             std::cout << "Введите имя пользователя (почта): ";
             std::cin >> login;
-            ++tries;
-        }
-        tries = 0;
-        while (password.empty() && tries < 3) {
-            std::cout << "Введите пароль (почта): ";
+            std::cout << "Введите пароль: ";
             std::cin >> password;
-            ++tries;
         }
         std::ofstream config("config.txt");
         config << login << std::endl << password;
@@ -136,11 +130,11 @@ bool User::Signup() {
     if (curlBuffer == R"({"data":""})") {
         std::cout << " ~ ~ ~ Successfully subscribed! ~ ~ ~\nHave a nice train!";
         exit(0);
-    } else if (curlBuffer == R"({"error":{"code":"error.http.bad_request","message":"Maximum number of attendees is reached"}})") {
+    } else if (curlBuffer ==
+               R"({"error":{"code":"error.http.bad_request","message":"Maximum number of attendees is reached"}})") {
         std::cout << "No free places :(" << std::endl;
         return false;
-    }
-    else {
+    } else {
         std::cout << "Cannot subscribe, try again?" << std::endl;
         return false;
     }

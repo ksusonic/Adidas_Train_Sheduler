@@ -14,6 +14,14 @@ int main() {
 
     User user;
     user.Authenticate_user();
+    if (!user.Authenticate_user()) {
+        std::cout << "Wrong login/password! :(" << std::endl;
+        std::ofstream ofs;
+        ofs.open("config.txt", std::ofstream::out | std::ofstream::trunc);
+        ofs.close();
+        std::cerr << "--config.txt cleared--" << std::endl;
+        throw std::runtime_error("Wrong data: reload the program");
+    }
 
     std::cout << "https://www.adidas.ru/adidasrunners/\n"
                  "Insert the interesting train link from the website above\n";
