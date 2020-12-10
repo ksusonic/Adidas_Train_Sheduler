@@ -1,9 +1,12 @@
 #include "User.h"
 #include <ctime>
+
 #ifdef _WIN32
 #include <Windows.h>
 #else
+
 #include <unistd.h>
+
 #endif
 
 int main() {
@@ -35,6 +38,7 @@ int main() {
                 sleep(60);
             }
     }
-
+    std::cout << "Sorry, no place for this train :(\n"
+                 "But you can check for another one here: https://www.adidas.ru/adidasrunners/";
     return 0;
 }
