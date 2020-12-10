@@ -23,12 +23,14 @@ public:
 
     static std::string Get_token_from_link(const std::string &link) {
         /* input:
-         * JSON: {..., "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGc...", }
+         * JSON:auto
          * output:
          * eyJ0eXAiOiJKV1QiLCJhbGc...
          */
         std::string to_find = "accessToken";
         auto it_begin = std::search(link.begin(), link.end(), to_find.begin(), to_find.end());
+        if (it_begin == link.end())
+            return "";  // not fount case
         it_begin = std::find(it_begin, link.end(), '"');
         ++it_begin;
         it_begin = std::find(it_begin, link.end(), '"');
@@ -38,9 +40,16 @@ public:
     }
 
     static std::vector<int> GetMembersInfo(const std::string &json) {
-        int nrAttendees = GetParameterFromJson(json, "nrAttendees");
-        int maxAttendees = GetParameterFromJson(json, "maxAttendees");
-        return {nrAttendees, maxAttendees};
+        int nrAttendees = 0, maxAttendees = 0;
+        nrAttendees = GetParameterFromJson(json, "nrAttendees");
+        maxAttendees = GetParameterFromJson(json, "maxAttendees");
+        if (nrAttendees != 0 && maxAttendees != 0)
+            return {nrAttendees, maxAttendees};
+        else return {0,0};
+    }
+
+    static int GetEventID(const std::string &json) {
+        return GetParameterFromJson(json, "id");
     }
 
 private:
@@ -54,6 +63,7 @@ private:
         return num;
     }
 };
+
 
 
 #endif //ADIDAS_PARSER_H

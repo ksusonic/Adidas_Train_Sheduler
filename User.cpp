@@ -56,9 +56,9 @@ bool User::load_config() {
 }
 
 void User::perform_GET_Request(const std::string &link) {
+    curlBuffer.clear();
     curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "GET");
     curl_easy_setopt(curl, CURLOPT_URL, link.c_str());
-    curlBuffer.clear();
     if (curl) //проверка
     {
         res = curl_easy_perform(curl);
@@ -67,12 +67,8 @@ void User::perform_GET_Request(const std::string &link) {
     }
 }
 
-void User::perform_POST_Request(const std::string &link, std::string &&body) {
-    curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
-
-}
-
 bool User::Authenticate_user() {
+    curlBuffer.clear();
     curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
     curl_easy_setopt(curl, CURLOPT_URL, "https://www.adidas.ru/adidasrunners/api/auth/login");
 
@@ -90,16 +86,67 @@ bool User::Authenticate_user() {
     const char *data = auth_link.c_str();
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
     res = curl_easy_perform(curl);
-    std::cout << curlBuffer << std::endl;
-    std::cout << res << std::endl;
 
     if (res == CURLE_OK) {
-        std::cout << "Authentication is success" << std::endl;
+        access_token = Parser::Get_token_from_link(curlBuffer);
+        if (access_token.empty()) {
+            std::cerr << "--Token not found--" << std::endl;
+            return false;
+        }
+        std::cerr << "--Authentication is success--" << std::endl;
+        user_logged = true;
+//        std::cerr << "token: " + access_token << std::endl;
         return true;
     } else {
-        std::cerr << "Authentication is failed\n" << std::endl;
+        std::cerr << "-!-Authentication is failed-!-\n" << std::endl;
         return false;
     }
-
 }
 
+void User::perform_POST_Request(const std::string &link) {
+    curlBuffer.clear();
+    curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
+    curl_easy_setopt(curl, CURLOPT_URL, link.c_str());
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+    struct curl_slist *headers = nullptr;
+    headers = curl_slist_append(headers, "Accept: application/json");
+    headers = curl_slist_append(headers,
+                                "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36");
+    headers = curl_slist_append(headers, "Content-Type: application/json;charset=UTF-8");
+    headers = curl_slist_append(headers, "Cookie: onesite_country=RU;");
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+    if (access_token.empty()) {
+        std::cerr << "No token!" << std::endl;
+        exit(1);
+    }
+    std::string body = R"({"accessToken":")" + access_token + R"(","adidasMarket":"RU"})";
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, body.c_str());
+    res = curl_easy_perform(curl);
+    if (res != CURLE_OK) {
+        std::cerr << "Error in POST";
+    }
+    std::cout << "\nResponse is: " << curlBuffer + '\n' << std::endl;
+}
+
+bool User::Signup() {
+    curlBuffer.clear();
+    std::string link_to_signup = "https://www.adidas.ru/adidasrunners/api/events/" + event_id + "/signup";
+    perform_POST_Request(link_to_signup);
+    if (curlBuffer == R"({"data":""})") {
+        std::cout << " ~ ~ ~ Successfully subscribed! ~ ~ ~\nHave a nice train!";
+        exit(0);
+    } else if (curlBuffer == "{\"error\":{\"code\":\"error.http.bad_request\",\"message\":\"Maximum number of attendees is reached\"}}") {
+        std::cout << "No free places :(" << std::endl;
+        return false;
+    }
+    else {
+        std::cout << "Cannot subscribe, try again?" << std::endl;
+        return false;
+    }
+}
+
+void User::EventHandler(const std::string &link) {
+    std::string link_api = Parser::Link_to_api(link); // преобразуем в ссылку API
+    perform_GET_Request(link_api);
+    event_id = std::to_string(Parser::GetEventID(curlBuffer));
+}

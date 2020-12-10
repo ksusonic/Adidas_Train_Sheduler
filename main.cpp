@@ -1,17 +1,20 @@
 #include "User.h"
-#include "parser.h"
 
 int main() {
-    // std::string link = "https://www.adidas.ru/adidasrunners/community/moscow/event/ar-draft-me-hard-tempo-1?cm_sp=RUNNING_HUB-_-MOSCOW-_-AR-DRAFT-ME-HARD-TEMPO-1";
-//    std::string link = "https://www.adidas.ru/adidasrunners/community/moscow/event/ar-1905-151?cm_sp=RUNNING_HUB-_-LOGGEDIN-_-AR-1905-151";
-    // link = Parser::Link_to_api(link); // преобразуем в ссылку API
-    std::string link = "https://www.google.com/";
+    std::cout << "Welcome to the Adidas training scheduler!" << std::endl << std::endl;
 
     User user;
-//    user.perform_GET_Request(link);
-
-    // Parser::GetMembersInfo(user.curlBuffer);
     user.Authenticate_user();
+//
+    std::string link = "https://www.adidas.ru/adidasrunners/community/moscow/event/ar-draft-me-hard-tempo-2?cm_sp=RUNNING_HUB-_-LOGGEDIN-_-AR-DRAFT-ME-HARD-TEMPO-2";
+//    while (link.empty()) {
+//        std::cout << "Link to signup:" << std::endl << std::endl;
+//        std::cin >> link;
+//    }
+
+    user.EventHandler(link);
+    user.Signup();
+//    user.perform_POST_Request("https://www.adidas.ru/adidasrunners/api/events/53092/signup");
 
     return 0;
 }
